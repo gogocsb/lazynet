@@ -1,1 +1,0 @@
-g++   -g -std=c++11 -Wall -Wextra -Werror -Wno-format-security -Wno-unused-parameter -Wpointer-arith -Wwrite-strings -march=native -rdynamic -O2 -finline-limit=1000 -DNDEBUG   CMakeFiles/md5test.dir/md5test.cc.o  -o ../../bin/md5test -rdynamic -lhl++ 

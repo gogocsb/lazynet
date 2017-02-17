@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../lib/libproto.a  CMakeFiles/proto.dir/DS_STORE_PROTOCOL.pb.cc.o
-/usr/bin/ranlib ../../lib/libproto.a
