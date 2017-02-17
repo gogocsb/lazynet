@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+2e88635ed72c21536ca31b4140f07426 protocol/DS_STORE_PROTOCOL.pb.cc
