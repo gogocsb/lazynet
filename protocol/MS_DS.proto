@@ -1,0 +1,42 @@
+package MS_DS;
+
+enum Weekday
+{
+    MON = 1;
+    TUE = 2;
+    WED = 3;
+    THU = 4;
+    FRI = 5;
+    SAT = 6;
+    SUN = 7;
+}
+
+message StoreTimePhrase
+{
+    required Weekday weekday = 1;
+    required uint32 storeTime = 2;
+}
+
+message StreamPlanInfo
+{   
+    required string streamId = 1;
+    required uint32 expireddays = 2;
+    repeated StoreTimePhrase storeTimePhrase= 3;
+    optional string cameraIp = 4;
+    optional string cameraPort = 5;
+    optional string streamType = 6;
+    optional uint32 codeRate = 7;
+    optional float frameRate = 8;
+    optional string moreInformation = 9;
+}
+
+message StorePlan
+{
+    repeated StreamPlanInfo streamPlanInfo = 1;
+    repeated uint64 taskId = 2;
+    required bool empty = 3;
+    optional string cameraName = 4;
+}
+
+
+
