@@ -7,8 +7,10 @@
 #include "StoreSession.h"
 
 
-StoreSession::StoreSession(handy::EventBase* loop, handy::Ip4Addr addr)
-    : fd_(0), addr_(addr), storeLoop_(loop)
+StoreSession::StoreSession(handy::EventBase* adminloop,
+        handy::EventBase* storeloop,
+        handy::Ip4Addr addr)
+    : fd_(0), addr_(addr), adminLoop_(adminloop), storeLoop_(storeloop)
 {
 }
 

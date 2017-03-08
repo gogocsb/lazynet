@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 #include <google/protobuf/message.h>
 
@@ -14,6 +15,8 @@ typedef google::protobuf::Message Message;
 typedef google::protobuf::Descriptor Descriptor;
 typedef std::map<uint32_t, std::string> Cmd2TypeNameMap;
 typedef std::map<std::string, uint32_t> TypeName2CmdMap;
+
+
 
 struct BaseHead
 {

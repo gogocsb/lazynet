@@ -25,5 +25,10 @@ target_link_libraries(manager ${manager_LINKER_LIBS})
 
 # --- SRC serivce 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/service)
-
+#set(manager_LINKER_LIBS
+#    proto
+#    handy)
+#aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/service service_SRCS)
+#add_library(service STATIC ${service_SRCS})
+#target_link_libraries(service ${service_LINKER_LIBS})
 # --- SRC utility

@@ -12,6 +12,7 @@ using namespace std;
 typedef MS_DS::StreamPlanInfo StreamPlanInfo;
 typedef shared_ptr<MS_DS::StreamPlanInfo> StreamPlanInfoPtr;
 typedef shared_ptr<MS_DS::StorePlan> StorePlanPtr;
+typedef MS_DS::StorePlan StorePlan;
 typedef shared_ptr<MS_DS::StoreTimePhrase> StoreTimePhrasePtr;
 
 struct Plan

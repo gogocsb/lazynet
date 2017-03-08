@@ -11,11 +11,13 @@ int main(int argc, char** argv)
     google::SetStderrLogging(google::INFO);
     FLAGS_colorlogtostderr=true;
     Logger::getLogger().setLogLevel(Logger::LWARN);
-    handy::EventBase base;
+    handy::EventBase adminLoop;
+    handy::EventBase storeLoop;
     handy::Ip4Addr loacl("127.0.0.1", 6666);
     handy::Ip4Addr remote("127.0.0.1", 2017);
     DSServer DS(loacl, remote, 0);
-    DS.initAdmin(&base);
+    DS.initAdmin(&adminLoop);
+    DS.initStore(&storeLoop);
     DS.registerToMS();
-    base.loop();
+    adminLoop.loop();
 }

@@ -21,8 +21,9 @@ DSServer::DSServer(handy::Ip4Addr local, handy::Ip4Addr remote, int threadpoolnu
 void DSServer::initAdmin(handy::EventBase* loop)
 {
     adminLoop_ = loop;
+    streamMgr_ =  make_shared<StreamMgr>();
     //MS_DS_Register
-    ExternalMsgCodec::onCodec(MSG_MS_DS_DSREGISTER, "MS_DS.MS_DS_Register");
+    ExternalMsgCodec::onCodec(MSG_MS_DS_DSREGISTER, "MS_DS.DSRegister");
     //MS_DS_RegisterACK
     ExternalMsgCodec::onCodec(MSG_MS_DS_DSREGISTERACK, "MS_DS.DSRegisterACK");
     dispatcher_.onMsg<MS_DS::DSRegisterACK>(
@@ -35,10 +36,12 @@ void DSServer::initAdmin(handy::EventBase* loop)
     //MS_DS_StorePlan
     ExternalMsgCodec::onCodec(MSG_MS_DS_STOREPLAN, "MS_DS.StorePlan");
     dispatcher_.onMsg<MS_DS::StorePlan>(
-            [](handy::TcpConnPtr, BaseHead, MS_DS::StorePlan* msg)
+            [this](handy::TcpConnPtr, BaseHead, MS_DS::StorePlan* msg)
             {
                 LOG(INFO) << "recv " <<msg->GetTypeName();
+                streamMgr_->updateStorePlan(msg);
             });
+    adminLoop_->runAt(6000, [this]{streamMgr_->checkStorePlan();}, 6000);
 }
 
 
@@ -81,6 +84,7 @@ void DSServer::registerToMS()
 void DSServer::initStore(handy::EventBase* loop)
 {
     storeLoop_ = loop;
+    sesService_ = make_shared<SessionService>(adminLoop_, storeLoop_);
 }
 
 void DSServer::initLoad()

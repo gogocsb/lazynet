@@ -58,7 +58,7 @@ uint64_t StreamMgr::getLoadSesId(string streamid)
         return 0;
 }
 
-void StreamMgr::updateStorePlan(StorePlanPtr msg)
+void StreamMgr::updateStorePlan(StorePlan* msg)
 {
     if(msg->empty())
     {

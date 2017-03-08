@@ -31,7 +31,8 @@ private:
     handy::ThreadPool loadThreadPool_;
     handy::TcpConnPtr msAgent_;
     ExternalMsgDispatcher dispatcher_;
-    StreamMgr streamMgr_;
+    shared_ptr<StreamMgr> streamMgr_;
+    shared_ptr<SessionService> sesService_;
 };
 
 #endif

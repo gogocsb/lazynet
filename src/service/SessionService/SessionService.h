@@ -33,9 +33,8 @@ using namespace std;
 class SessionService
 {
 public:
-    SessionService(handy::EventBase* admin,
-            handy::EventBase* store,
-            handy::EventBase* load);
+    SessionService(handy::EventBase*,
+            handy::EventBase*);
     //StoreSession interface
     uint64_t newStoreSes();
     void startStoreSes(uint64_t);
@@ -61,7 +60,6 @@ private:
     //map<uint64_t, > loadMap_;
     handy::EventBase* adminLoop_;
     handy::EventBase* storeLoop_;
-    handy::EventBase* loadLoop_;
 };
 
 #endif

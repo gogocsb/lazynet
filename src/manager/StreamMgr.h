@@ -21,7 +21,7 @@ class StreamMgr
 {
 public:
     StreamMgr();
-    void updateStorePlan(StorePlanPtr msg);
+    void updateStorePlan(StorePlan* msg);
     void diffStorePlan();
     void checkStorePlan();
     uint32_t getCurDay();

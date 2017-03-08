@@ -32,7 +32,7 @@ using namespace std;
 class StoreSession
 {
 public:
-    StoreSession(handy::EventBase*, handy::Ip4Addr);
+    StoreSession(handy::EventBase*, handy::EventBase*, handy::Ip4Addr);
     void startStore();
     void stopStore();
     void addOutStream(handy::Ip4Addr);

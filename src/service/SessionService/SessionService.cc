@@ -8,16 +8,14 @@
 using namespace std;
 
 SessionService::SessionService(handy::EventBase* admin,
-        handy::EventBase* store,
-        handy::EventBase* load) :
+        handy::EventBase* store) :
     storeSesCount_(0),
     loadSesCount_(0),
     liveSesCount_(0),
     id_(0),
     storeSess_(),
     adminLoop_(admin),
-    storeLoop_(store),
-    loadLoop_(load)
+    storeLoop_(store)
 {
     port_ = 3000;
     portInterval_ = 10;
@@ -29,9 +27,9 @@ uint64_t SessionService::newStoreSes()
     if(storeSesCount_ < maxConn_)
     {
         ++id_;
-        handy::Ip4Addr addr(port_);
+        handy::Ip4Addr addr("127.0.0.1", port_);
         port_ = port_ + portInterval_;
-        StoreSesPtr storeSes(new StoreSession(storeLoop_, addr));
+        StoreSesPtr storeSes(new StoreSession(adminLoop_, storeLoop_, addr));
         int ret = storeSes->bindAddr();
         if(storeSes != nullptr && ret != 0)
         {
