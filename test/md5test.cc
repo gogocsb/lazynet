@@ -2,7 +2,6 @@
 #include <string>
 #include <iostream>
 
-
 int main()
 {
     hashwrapper *myWrapper = new md5wrapper();

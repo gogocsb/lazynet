@@ -20,6 +20,7 @@ SessionService::SessionService(handy::EventBase* admin,
     loadLoop_(load)
 {
     port_ = 3000;
+    portInterval_ = 10;
     maxConn_ = 200;
 }
 
@@ -28,8 +29,11 @@ uint64_t SessionService::newStoreSes()
     if(storeSesCount_ < maxConn_)
     {
         ++id_;
-        StoreSesPtr storeSes = make_shared<StoreSession>();
-        if(storeSes != nullptr)
+        handy::Ip4Addr addr(port_);
+        port_ = port_ + portInterval_;
+        StoreSesPtr storeSes(new StoreSession(storeLoop_, addr));
+        int ret = storeSes->bindAddr();
+        if(storeSes != nullptr && ret != 0)
         {
             LOG(INFO) << "session " << id_ << " is created";
             storeSess_[id_] = storeSes;
@@ -43,7 +47,7 @@ uint64_t SessionService::newStoreSes()
     }
     else
     {
-        LOG(WARNING) << "too much conns";
+        LOG(WARNING) << "too many StoreSessions";
         return 0;
     }
 }

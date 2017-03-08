@@ -55,6 +55,7 @@ private:
     uint64_t liveSesCount_;
     uint64_t id_;
     uint16_t port_;
+    uint16_t portInterval_;
     uint64_t maxConn_;
     Id2StoreMap storeSess_;
     //map<uint64_t, > loadMap_;

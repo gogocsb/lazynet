@@ -17,3 +17,17 @@ set(codeccli_SRCS
 add_executable(codeccli ${codeccli_SRCS})
 target_link_libraries(codeccli handy
                       pthread)
+
+set(DS_SRCS
+    svr.cc
+    )
+
+add_executable(DS ${DS_SRCS})
+target_link_libraries(DS
+                    handy
+                    proto
+                    manager
+                    glog
+                    service
+                    codec
+                    pthread)

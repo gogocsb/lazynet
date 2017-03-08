@@ -18,7 +18,7 @@ set(CXX_FLAGS
     -g
     -std=c++11
     #-DVALGRIND
-    -Wall
+    #-Wall
     -Wextra
     -Werror
     #-Wconversion
@@ -51,10 +51,17 @@ message ("  BOOST_ROOT: ${Boost_INCLUDE_DIRS}")
 
 # ---- Protobuf 
 if(USE_PROTO)
-    find_package(Protobuf)
+    find_package(Protobuf REQUIRED)
     add_subdirectory(protocol)
     message ("  ADD Protobuf")
 endif()
+
+# ---- Glog
+if(USE_GLOG)
+    include_directories(/usr/local/include/glog)
+    message ("  ADD Glog")
+endif()
+
 
 # ---- Hashlib
 if(USE_HASHLIB)

@@ -38,8 +38,13 @@ public:
     void addOutStream(handy::Ip4Addr);
     void removeOutStream(handy::Ip4Addr);
     void readCallBack();
+    int bindAddr();
+    void attatchToLoop();
+    void closeUDP();
 private:
+    int fd_;
     handy::Ip4Addr addr_;
+    handy::Channel* channel_;
     handy::UdpConnPtr inStream_;
     vector<handy::Ip4Addr> outStreamVec_;
     handy::EventBase* adminLoop_;

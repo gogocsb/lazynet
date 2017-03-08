@@ -10,7 +10,7 @@
 #include <atomic>
 
 #include "Plan.h"
-#include "../SessionService/SessionService.h"
+#include "../service/SessionService/SessionService.h"
 #include "../protocol/MS_DS.pb.h"
 
 using namespace std;

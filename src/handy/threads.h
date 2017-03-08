@@ -25,7 +25,7 @@ template<typename T> struct SafeQueue: private std::mutex, private noncopyable {
     size_t size();
     void exit();
     bool exited() { return exit_; }
-private: 
+private:
     std::list<T> items_;
     std::condition_variable ready_;
     size_t capacity_;
@@ -85,7 +85,7 @@ template<typename T> void SafeQueue<T>::wait_ready(
     } else if (waitMs > 0){
         auto tp = std::chrono::steady_clock::now()
             + std::chrono::milliseconds(waitMs);
-        while (ready_.wait_until(lk, tp) != std::cv_status::timeout 
+        while (ready_.wait_until(lk, tp) != std::cv_status::timeout
             && items_.empty() && !exit_) {
         }
     }

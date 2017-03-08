@@ -1,5 +1,18 @@
 package MS_DS;
 
+
+message DSRegister
+{
+    required string ip = 1;
+    required uint32 port = 2;
+    required uint32 pid = 3;
+}
+
+message DSRegisterACK
+{
+    required uint32 gid = 1;
+}
+
 enum Weekday
 {
     MON = 1;

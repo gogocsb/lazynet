@@ -4,19 +4,20 @@
 
 #include <glog/logging.h>
 
-#include "StorePlanMgr.h"
+#include "StreamMgr.h"
 
 
 
-StorePlanMgr::StorePlanMgr():
+StreamMgr::StreamMgr():
     prePlans_(),
     curPlans_(),
-    tasks_()
+    storeSess_(),
+    loadSess_()
 {
 }
 
 //day0 means sunday, change day0 to day7
-uint32_t StorePlanMgr::getCurDay()
+uint32_t StreamMgr::getCurDay()
 {
     time_t t;
     time(&t);
@@ -24,19 +25,40 @@ uint32_t StorePlanMgr::getCurDay()
     return (wd == 0 ? 7 : wd);
 }
 
-uint32_t StorePlanMgr::getCurHour()
+uint32_t StreamMgr::getCurHour()
 {
     time_t t;
     time(&t);
     return localtime(&t)->tm_hour;
 }
 
-bool StorePlanMgr::existTask(string streamId)
+bool StreamMgr::existStoreSes(string streamid)
 {
-    return (tasks_.find(streamId) == tasks_.end()) ? false : true;
+    return (storeSess_.find(streamid) == storeSess_.end()) ? false : true;
 }
 
-void StorePlanMgr::updateStorePlan(StorePlanPtr msg)
+bool StreamMgr::existLoadSes(string streamid)
+{
+    return (loadSess_.find(streamid) == loadSess_.end()) ? false : true;
+}
+
+uint64_t StreamMgr::getStoreSesId(string streamid)
+{
+    if(existStoreSes(streamid))
+        return storeSess_[streamid];
+    else
+        return 0;
+}
+
+uint64_t StreamMgr::getLoadSesId(string streamid)
+{
+    if(existLoadSes(streamid))
+       return loadSess_[streamid];
+    else
+        return 0;
+}
+
+void StreamMgr::updateStorePlan(StorePlanPtr msg)
 {
     if(msg->empty())
     {
@@ -55,12 +77,12 @@ void StorePlanMgr::updateStorePlan(StorePlanPtr msg)
            PlanPtr planPtr = make_shared<Plan>(planInfo);
            curPlans_[planInfo.streamid()] = planPtr;
         }
-        LOG(INFO) << "Current StorePlan Size: " << curPlans_.size();
+        LOG(INFO) << "Current Stream Size: " << curPlans_.size();
     }
     diffStorePlan();
 }
 
-void StorePlanMgr::diffStorePlan()
+void StreamMgr::diffStorePlan()
 {
     for(auto& plan : curPlans_)
     {
@@ -106,15 +128,16 @@ void StorePlanMgr::diffStorePlan()
     }
 }
 
-void StorePlanMgr::checkStorePlan()
+void StreamMgr::checkStorePlan()
 {
+    LOG(INFO) << "Check StorePlan";
     uint32_t curDay = getCurDay();
     uint32_t curHour = getCurHour();
     for(auto& plan : curPlans_)
     {
         if(plan.second->timePhrase[curDay]&(1<<curHour)) //if plan is set now
         {
-            if(existTask(plan.second->streamId))
+            if(existStoreSes(plan.second->streamId))
             {
                 continue;
             }
@@ -130,7 +153,7 @@ void StorePlanMgr::checkStorePlan()
         }
         else //if plan is unset now
         {
-            if(existTask(plan.second->streamId))
+            if(existStoreSes(plan.second->streamId))
             {
                 //stopTask
 

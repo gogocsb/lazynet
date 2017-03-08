@@ -7,7 +7,7 @@ namespace handy {
 
 template class SafeQueue<Task>;
 
-ThreadPool::ThreadPool(int threads, int maxWaiting, bool start): 
+ThreadPool::ThreadPool(int threads, int maxWaiting, bool start):
 tasks_(maxWaiting), threads_(threads)
 {
     if (start) {
