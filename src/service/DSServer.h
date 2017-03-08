@@ -6,21 +6,30 @@
 #include "../codec/ExternalMsgCodec.h"
 #include "../manager/StreamMgr.h"
 
+
+//TODO
+//add threadpool for load
+//add one thread for store
+
 class DSServer
 {
 public:
     //TODO add KeepAlive
     //add PlanCheck
-    DSServer(handy::EventBase*, handy::Ip4Addr, handy::Ip4Addr);
-    void initServer();
+    DSServer(handy::Ip4Addr, handy::Ip4Addr, int);
+    void initAdmin(handy::EventBase*);
+    void initStore(handy::EventBase*);
+    void initLoad();
     void registerToMS();
     void keepAlive();
 private:
-    handy::EventBase *adminLoop_;
     handy::Ip4Addr localAddr_;
     handy::Ip4Addr remoteAddr_;
+    handy::EventBase* adminLoop_;
+    handy::EventBase* storeLoop_;
+    handy::ThreadPool storeThread_;
+    handy::ThreadPool loadThreadPool_;
     handy::TcpConnPtr msAgent_;
-    ExternalMsgCodec codec_;
     ExternalMsgDispatcher dispatcher_;
     StreamMgr streamMgr_;
 };

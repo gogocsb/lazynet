@@ -81,7 +81,7 @@ Message* ExternalMsgCodec::decode(Buffer& buf, BaseHead& info)
 
 void ExternalMsgCodec::onCodec(uint32_t cmd, string type)
 {
-    LOG(INFO) << "reg cmd" << cmd <<" type" << type;
+    LOG(INFO) << "reg cmd " << cmd <<" type " << type;
     cmd2Type_[cmd] = type;
     type2Cmd_[type] = cmd;
 }
@@ -93,7 +93,7 @@ uint32_t ExternalMsgCodec::getCmd(string typeName)
 
 string ExternalMsgCodec::getType(uint32_t cmd)
 {
-    LOG(INFO) << "cmd " << cmd << "getType "<< cmd2Type_[cmd];
+    LOG(INFO) << "cmd " << cmd << " getType "<< cmd2Type_[cmd];
     return cmd2Type_[cmd];
 }
 

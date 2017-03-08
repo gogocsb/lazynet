@@ -148,15 +148,14 @@ void StreamMgr::checkStorePlan()
                 {
                     delPlans_.erase(it);
                 }
-                //startTask;
+                //createSes and startSes;
             }
         }
         else //if plan is unset now
         {
             if(existStoreSes(plan.second->streamId))
             {
-                //stopTask
-
+                //stopSes
             }
             else
             {
@@ -166,7 +165,7 @@ void StreamMgr::checkStorePlan()
     }
     for(auto& delPlan : delPlans_)
     {
-        //stopTask
+        //stopSes
     }
 }
 
