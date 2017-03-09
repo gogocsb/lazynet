@@ -1,5 +1,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/protocol)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/handy)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 
 # --- SRC handy
 set(handy_LINKER_LIBS "")

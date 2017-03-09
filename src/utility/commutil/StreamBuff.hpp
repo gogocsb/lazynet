@@ -39,5 +39,4 @@ private:
     size_t b_, e_, cap_;
 };
 
-
 #endif

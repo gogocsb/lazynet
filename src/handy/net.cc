@@ -68,7 +68,7 @@ string Ip4Addr::toString() const {
         ntohs(addr_.sin_port));
 }
 
-string Ip4Addr::ip() const { 
+string Ip4Addr::ip() const {
     uint32_t uip = addr_.sin_addr.s_addr;
     return util::format("%d.%d.%d.%d",
         (uip >> 0)&0xff,
@@ -81,11 +81,19 @@ short Ip4Addr::port() const {
     return ntohs(addr_.sin_port);
 }
 
-unsigned int Ip4Addr::ipInt() const { 
+unsigned int Ip4Addr::ipInt() const {
     return ntohl(addr_.sin_addr.s_addr);
 }
 bool Ip4Addr::isIpValid() const {
     return addr_.sin_addr.s_addr != INADDR_NONE;
+}
+bool Ip4Addr::operator==(const Ip4Addr &rhs) const
+{
+    if(this->addr_.sin_addr.s_addr  == rhs.addr_.sin_addr.s_addr &&
+       this->addr_.sin_port == rhs.addr_.sin_port)
+        return true;
+    else
+        return false;
 }
 
 char* Buffer::makeRoom(size_t len) {
@@ -110,14 +118,14 @@ void Buffer::expand(size_t len) {
 }
 
 void Buffer::copyFrom(const Buffer& b) {
-    memcpy(this, &b, sizeof b); 
+    memcpy(this, &b, sizeof b);
     if (b.buf_) {
-        buf_ = new char[cap_]; 
+        buf_ = new char[cap_];
         memcpy(data(), b.begin(), b.size());
     }
 }
 
-Buffer& Buffer::absorb(Buffer& buf) { 
+Buffer& Buffer::absorb(Buffer& buf) {
     if (&buf != this) {
         if (size() == 0) {
             char b[sizeof buf];

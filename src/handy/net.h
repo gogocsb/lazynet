@@ -29,6 +29,7 @@ struct Ip4Addr {
     bool isIpValid() const;
     struct sockaddr_in& getAddr() { return addr_; }
     static std::string hostToIp(const std::string& host) { Ip4Addr addr(host, 0); return addr.ip(); }
+    bool operator==(const Ip4Addr &rhs) const;
 private:
     struct sockaddr_in addr_;
 };
