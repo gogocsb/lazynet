@@ -41,7 +41,7 @@ void DSServer::initAdmin(handy::EventBase* loop)
                 LOG(INFO) << "recv " <<msg->GetTypeName();
                 streamMgr_->updateStorePlan(msg);
             });
-    adminLoop_->runAt(6000, [this]{streamMgr_->checkStorePlan();}, 6000);
+    adminLoop_->runAfter(6000, [this]{streamMgr_->checkStorePlan();}, 6000);
 }
 
 
