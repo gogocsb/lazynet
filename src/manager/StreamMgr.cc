@@ -14,6 +14,8 @@ StreamMgr::StreamMgr():
     storeSess_(),
     loadSess_()
 {
+    port_ = 3000;
+    portInterval_ = 10;
 }
 
 //day0 means sunday, change day0 to day7
@@ -30,6 +32,35 @@ uint32_t StreamMgr::getCurHour()
     time_t t;
     time(&t);
     return localtime(&t)->tm_hour;
+}
+
+
+
+//TODO send bye and stop all session, clear map
+void stopAllStream()
+{
+    return;
+}
+
+
+//TODO send bye and stop session, erase session in map
+void stopStream(string streamid)
+{
+    return;
+}
+
+
+//TODO add Proto
+void inviteStream(string streamid)
+{
+    return;
+}
+
+
+//TODO add Proto
+void byeStream(string streamid)
+{
+    return;
 }
 
 bool StreamMgr::existStoreSes(string streamid)
@@ -56,6 +87,11 @@ uint64_t StreamMgr::getLoadSesId(string streamid)
        return loadSess_[streamid];
     else
         return 0;
+}
+
+void StreamMgr::setSesServicePtr_(shared_ptr<SessionService> ptr)
+{
+    sesServicePtr_ = ptr;
 }
 
 void StreamMgr::updateStorePlan(StorePlan* msg)
@@ -149,6 +185,19 @@ void StreamMgr::checkStorePlan()
                     delPlans_.erase(it);
                 }
                 //createSes and startSes;
+                uint64_t sesId = sesServicePtr_->newStoreSes(port_);
+                port_ = port_ + portInterval_;
+                if(sesId != 0)
+                {
+                    storeSess_[plan.second->streamId] = sesId;
+                    LOG(INFO) << "stream " << plan.second->streamId << " add StoreSession " << sesId;
+                }
+                else
+                {
+                    LOG(INFO) << "stream " << plan.second->streamId << " add StoreSession fail";
+                }
+
+                //TODO send Invite to MS
             }
         }
         else //if plan is unset now

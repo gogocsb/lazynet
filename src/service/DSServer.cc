@@ -1,3 +1,7 @@
+#include <thread>
+#include <sys/syscall.h>
+#include <unistd.h>
+
 #include <glog/logging.h>
 
 
@@ -5,11 +9,14 @@
 #include "../protocol/MS_DS.pb.h"
 #include "../codec/SSCmdCode.h"
 
+#define gettidv1() syscall(__NR_gettid)
+#define gettidv2() syscall(SYS_gettid)
+
+
 DSServer::DSServer(handy::Ip4Addr local, handy::Ip4Addr remote, int threadpoolnum):
     localAddr_(local), remoteAddr_(remote),
     storeThread_(1), loadThreadPool_(threadpoolnum)
 {
-
 }
 
 
@@ -57,6 +64,7 @@ void DSServer::registerToMS()
                     MS_DS::DSRegister msg;
                     msg.set_ip(localAddr_.ip());
                     msg.set_port(localAddr_.port());
+                    msg.set_pid((long int)gettidv1());
                     ExternalMsgCodec::encode(&msg, 0, 0, 0, con->getOutput());
                     con->sendOutput();
                     LOG(INFO) << "send Register";
@@ -85,6 +93,7 @@ void DSServer::initStore(handy::EventBase* loop)
 {
     storeLoop_ = loop;
     sesService_ = make_shared<SessionService>(adminLoop_, storeLoop_);
+    streamMgr_->setSesServicePtr_(sesService_);
 }
 
 void DSServer::initLoad()

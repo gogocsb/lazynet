@@ -17,18 +17,15 @@ SessionService::SessionService(handy::EventBase* admin,
     adminLoop_(admin),
     storeLoop_(store)
 {
-    port_ = 3000;
-    portInterval_ = 10;
-    maxConn_ = 200;
+    maxStoreConn_ = 200;
 }
 
-uint64_t SessionService::newStoreSes()
+uint64_t SessionService::newStoreSes(uint16_t port)
 {
-    if(storeSesCount_ < maxConn_)
+    if(storeSesCount_ < maxStoreConn_)
     {
         ++id_;
-        handy::Ip4Addr addr("127.0.0.1", port_);
-        port_ = port_ + portInterval_;
+        handy::Ip4Addr addr("127.0.0.1", port);
         StoreSesPtr storeSes(new StoreSession(adminLoop_, storeLoop_, addr));
         int ret = storeSes->bindAddr();
         if(storeSes != nullptr && ret != 0)

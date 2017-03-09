@@ -36,7 +36,7 @@ public:
     SessionService(handy::EventBase*,
             handy::EventBase*);
     //StoreSession interface
-    uint64_t newStoreSes();
+    uint64_t newStoreSes(uint16_t);
     void startStoreSes(uint64_t);
     void stopStoreSes(uint64_t);
     void attatchLive(uint64_t, handy::Ip4Addr);
@@ -53,9 +53,7 @@ private:
     uint64_t loadSesCount_;
     uint64_t liveSesCount_;
     uint64_t id_;
-    uint16_t port_;
-    uint16_t portInterval_;
-    uint64_t maxConn_;
+    uint64_t maxStoreConn_;
     Id2StoreMap storeSess_;
     //map<uint64_t, > loadMap_;
     handy::EventBase* adminLoop_;
