@@ -6,12 +6,12 @@
 
 #include "StoreSession.h"
 
-
 StoreSession::StoreSession(handy::EventBase* adminloop,
-        handy::EventBase* storeloop,
+        handy::MultiBase* storeloop,
         handy::Ip4Addr addr)
-    : fd_(0), addr_(addr), adminLoop_(adminloop), storeLoop_(storeloop)
+    : fd_(0), buf_(), addr_(addr), adminLoop_(adminloop), storeLoop_(storeloop)
 {
+
 }
 
 int StoreSession::bindAddr()
@@ -35,13 +35,14 @@ int StoreSession::bindAddr()
 }
 
 //TODO ReadCallBack
+//when recv, send packet to (auto i : outStreamVec)
+//when buf reach 10M, flush buffer, exchange buf and buf->next
 void StoreSession::attatchToLoop()
 {
-    channel_ = new handy::Channel(storeLoop_, fd_, handy::kReadEvent);
+    channel_ = new handy::Channel(storeLoop_->allocBase(), fd_, handy::kReadEvent);
     channel_->onRead([this]{
             LOG(INFO) << "onRead";
-            /*
-            Buffer buf;
+
             struct sockaddr_in raddr;
             socklen_t rsz = sizeof(raddr);
             if (!channel_ || channel_->fd() < 0)
@@ -49,17 +50,42 @@ void StoreSession::attatchToLoop()
                 return;
             }
             int fd = channel_->fd();
-            ssize_t rn = recvfrom(fd, buf.makeRoom(kUdpPacketSize), kUdpPacketSize, 0, (sockaddr*)&raddr, &rsz);
+            ssize_t rn = recvfrom(fd, buf_.begin(), handy::kUdpPacketSize, 0, (sockaddr*)&raddr, &rsz);
             if (rn < 0)
             {
-                error("udp %d recv failed: %d %s", fd, errno, strerror(errno));
+                LOG(INFO) << "udp " << fd << "  recv failed: " << fd << " " << strerror(errno);
                 return;
             }
-            buf.addSize(rn);
-            trace("udp %d recv %ld bytes from %s", fd, rn, Ip4Addr(raddr).toString().data());
-            this->msgcb_(shared_from_this(), buf, raddr);*/
+            //TODO outputStream
+            //for(auto out : outStreamVec_)
+            //{
+            //    sendTo(buf_.begin(), rn, out);
+            //}
+            buf_.consume(rn);
+            LOG(INFO) << "buf consume " << rn;
+            if(buf_.isFull())
+            {
+                LOG(INFO) << "buf full write t SFS";
+                LOG(INFO) << "buf_addr " << buf_.data();
+                //TODO write to SFS
+                buf_.resetBuf();
+            }
             });
     return;
+}
+
+void StoreSession::sendTo(const char* buf, size_t len, handy::Ip4Addr addr)
+{
+    if (!channel_ || channel_->fd() < 0)
+    {
+        LOG(WARNING) << "channel closed";
+        return;
+    }
+    int fd = channel_->fd();
+    int wn = ::sendto(fd, buf, len, 0, (sockaddr*)&addr.getAddr(), sizeof(sockaddr));
+    if (wn < 0) {
+        LOG(ERROR) << "udp  sendto "<< addr.toString().c_str() << " error";
+    }
 }
 
 //TODO after close send buf
@@ -69,7 +95,7 @@ void StoreSession::closeUDP()
         return;
     auto p = channel_;
     channel_=NULL;
-    storeLoop_->safeCall([p](){ delete p; });
+    storeLoop_->allocBase()->safeCall([p](){ delete p; });
 }
 
 void StoreSession::startStore()
@@ -84,7 +110,7 @@ void StoreSession::stopStore()
 
 void StoreSession::addOutStream(handy::Ip4Addr outStream)
 {
-    storeLoop_->safeCall(
+    storeLoop_->allocBase()->safeCall(
             [=]{
                 outStreamVec_.push_back(outStream);
             });
@@ -92,7 +118,7 @@ void StoreSession::addOutStream(handy::Ip4Addr outStream)
 
 void StoreSession::removeOutStream(handy::Ip4Addr outStream)
 {
-    storeLoop_->safeCall(
+    storeLoop_->allocBase()->safeCall(
             [=]{
                 auto it = find(outStreamVec_.begin(), outStreamVec_.end(), outStream);
                 if(it == outStreamVec_.end())
@@ -103,13 +129,4 @@ void StoreSession::removeOutStream(handy::Ip4Addr outStream)
                     return;
                 }
             });
-}
-
-//TODO
-//when recv, send packet to (auto i : outStreamVec)
-//when buf reach 10M, flush buffer, exchange buf and buf->next
-
-void StoreSession::readCallBack()
-{
-
 }

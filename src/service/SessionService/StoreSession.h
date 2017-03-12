@@ -8,6 +8,7 @@
 #include <glog/logging.h>
 
 #include <handy/handy.h>
+#include "../src/utility/commutil/StreamBuff.hpp"
 
 using namespace std;
 
@@ -19,7 +20,6 @@ using namespace std;
 //workloop
 //reportLoop
 
-
 //in initfunc
 //Session hook onRead CallBack
 
@@ -28,11 +28,10 @@ using namespace std;
 //stop
 
 
-
 class StoreSession
 {
 public:
-    StoreSession(handy::EventBase*, handy::EventBase*, handy::Ip4Addr);
+    StoreSession(handy::EventBase*, handy::MultiBase*, handy::Ip4Addr);
     void startStore();
     void stopStore();
     void addOutStream(handy::Ip4Addr);
@@ -40,15 +39,17 @@ public:
     void readCallBack();
     int bindAddr();
     void attatchToLoop();
+    void sendTo(const char* buf, size_t len, handy::Ip4Addr);
     void closeUDP();
 private:
     int fd_;
+    StreamBuf buf_;
     handy::Ip4Addr addr_;
     handy::Channel* channel_;
     handy::UdpConnPtr inStream_;
     vector<handy::Ip4Addr> outStreamVec_;
     handy::EventBase* adminLoop_;
-    handy::EventBase* storeLoop_;
+    handy::MultiBase* storeLoop_;
 };
 typedef shared_ptr<StoreSession> StoreSesPtr;
 

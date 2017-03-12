@@ -51,6 +51,11 @@ Message* ExternalMsgCodec::decode(Buffer& buf, BaseHead& info)
     info.para1 = *(uint32_t*)(p+12);
     info.para2 = *(uint32_t*)(p+16);
 #endif
+    if(info.length == 0)
+    {
+        buf.consume(sizeof(BaseHead) + info.length);
+        return NULL;
+    }
 
     std::string typeName = getType(info.cmd);
     Message* msg = NULL;
@@ -114,8 +119,8 @@ void ExternalMsgCodec::encode(Message* msg, uint32_t err, uint32_t para1, uint32
     BaseHead info;
     const string& typeName = msg->GetDescriptor()->full_name();
     LOG(INFO) << "encode typename " << typeName;
-    info.cmd = htonl(getCmd(typeName));
 #ifdef HTONL
+    info.cmd = htonl(getCmd(typeName));
     info.length = htonl(msg->ByteSize());
     info.err = htonl(err);
     info.para1 = htonl(para1);
@@ -123,6 +128,7 @@ void ExternalMsgCodec::encode(Message* msg, uint32_t err, uint32_t para1, uint32
 #endif
 
 #ifndef HTONL
+    info.cmd = getCmd(typeName);
     info.length = msg->ByteSize();
     info.err = err;
     info.para1 = para1;
@@ -138,4 +144,29 @@ void ExternalMsgCodec::encode(Message* msg, uint32_t err, uint32_t para1, uint32
     msg->SerializeToArray(buf.allocRoom(msg->ByteSize()), msg->ByteSize());
 }
 
+void ExternalMsgCodec::encode(string msg, uint32_t err, uint32_t para1, uint32_t para2, Buffer& buf)
+{
+    BaseHead info;
+#ifdef HTONL
+    info.cmd = htonl(getCmd(msg));
+    info.length = htonl(0);
+    info.err = htonl(err);
+    info.para1 = htonl(para1);
+    info.para2 = htonl(para2);
+#endif
 
+#ifndef HTONL
+    info.cmd = getCmd(msg);
+    info.length = 0;
+    info.err = err;
+    info.para1 = para1;
+    info.para2 = para2;
+#endif
+
+    LOG(INFO) << "buf append" ;
+    buf.appendValue(info.cmd);
+    buf.appendValue(info.length);
+    buf.appendValue(info.err);
+    buf.appendValue(info.para1);
+    buf.appendValue(info.para2);
+}

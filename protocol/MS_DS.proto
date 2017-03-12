@@ -51,5 +51,28 @@ message StorePlan
     optional string cameraName = 4;
 }
 
+message ReadyStoreStreamInfo
+{
+    required string streamId = 1;
+    required string recvCameraPort = 2;
+}
 
+message ReadyStoreStreamInfoACK
+{
+    required string streamId = 1;
+}
 
+message SystemInfo
+{
+    //net
+    required uint32 maxNetBandWidth = 1;
+    required double currentNetBandWidth = 2;
+    optional double currentNetBandWidthPercent = 3;
+    //mem
+    optional double maxMemory = 4;
+    optional double currentMemory = 5;
+    required double currentMemoryUsagePercent = 6;
+    //cpu
+    optional uint32 maxCpuNumber = 7;
+    required double currentCpuUsagePercent = 8; 
+}

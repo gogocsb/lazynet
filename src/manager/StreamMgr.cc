@@ -1,11 +1,13 @@
 #include <iostream>
 #include <bitset>
 #include <sys/time.h>
+#include <string>
 
 #include <glog/logging.h>
 
 #include "StreamMgr.h"
-
+#include "../codec/ExternalMsgCodec.h"
+#include "../protocol/MS_DS.pb.h"
 
 
 StreamMgr::StreamMgr():
@@ -35,31 +37,84 @@ uint32_t StreamMgr::getCurHour()
 }
 
 
+void StreamMgr::createStream(string streamid)
+{
+    uint64_t sesId = sesServicePtr_->newStoreSes(port_);
+    if(sesId != 0)
+    {
+        //only bind addr
+        //after recv INVITEACK, session attatch to a loop
+        StoreSesInfo ses(sesId);
+        storeSess_[streamid] = ses;
+        LOG(INFO) << "stream " << streamid << " add StoreSession " << sesId;
+        inviteStream(streamid, port_);
+    }
+    else
+    {
+        LOG(INFO) << "stream " << streamid << " add StoreSession fail";
+    }
+    port_ += portInterval_;
+}
 
 //TODO send bye and stop all session, clear map
-void stopAllStream()
+void StreamMgr::stopAllStream()
 {
+    for(auto ses : storeSess_)
+        stopStream(ses.first);
+    //TODO clear map
+    storeSess_.clear();
     return;
 }
-
 
 //TODO send bye and stop session, erase session in map
-void stopStream(string streamid)
+void StreamMgr::stopStream(string streamid)
 {
+    byeStream(streamid);
+    sesServicePtr_->getStoreSes(storeSess_[streamid].sessionId)->stopStore();
+    //TODO erase map
+    storeSess_.erase(streamid);
     return;
+}
+
+void StreamMgr::inviteStream(string streamid, uint16_t port)
+{
+    MS_DS::ReadyStoreStreamInfo msg;
+    msg.set_streamid(streamid);
+    msg.set_recvcameraport(to_string(port));
+    ExternalMsgCodec::encode(&msg, 0, 0, 0, msConn_->getOutput());
+    msConn_->sendOutput();
+    LOG(INFO) << "send Invite Camera";
+    return;
+}
+
+void StreamMgr::startStream(string streamid, uint32_t p1, uint32_t p2 ,uint32_t err)
+{
+    if(err != 0)
+    {
+        LOG(INFO) << "invite Camera Fail, wait for next time";
+        // stop session and erase storesessionMap
+        sesServicePtr_->getStoreSes(storeSess_[streamid].sessionId)->stopStore();
+        storeSess_.erase(streamid);
+    }
+    else
+    {
+        storeSess_[streamid].para1 = p1,
+        storeSess_[streamid].para2 = p2;
+        uint64_t sesid = storeSess_[streamid].sessionId;
+        sesServicePtr_->getStoreSes(sesid)->startStore();
+        return;
+    }
 }
 
 
 //TODO add Proto
-void inviteStream(string streamid)
+void StreamMgr::byeStream(string streamid)
 {
-    return;
-}
-
-
-//TODO add Proto
-void byeStream(string streamid)
-{
+    uint32_t para1 = storeSess_[streamid].para1;
+    uint32_t para2 = storeSess_[streamid].para2;
+    ExternalMsgCodec::encode("MS_DS.Bye", para1, para2, 0, msConn_->getOutput());
+    msConn_->sendOutput();
+    LOG(INFO) << "send Bye Camera";
     return;
 }
 
@@ -76,7 +131,7 @@ bool StreamMgr::existLoadSes(string streamid)
 uint64_t StreamMgr::getStoreSesId(string streamid)
 {
     if(existStoreSes(streamid))
-        return storeSess_[streamid];
+        return storeSess_[streamid].sessionId;
     else
         return 0;
 }
@@ -84,14 +139,19 @@ uint64_t StreamMgr::getStoreSesId(string streamid)
 uint64_t StreamMgr::getLoadSesId(string streamid)
 {
     if(existLoadSes(streamid))
-       return loadSess_[streamid];
+       return loadSess_[streamid].sessionId;
     else
         return 0;
 }
 
-void StreamMgr::setSesServicePtr_(shared_ptr<SessionService> ptr)
+void StreamMgr::setSesServicePtr(shared_ptr<SessionService> ptr)
 {
     sesServicePtr_ = ptr;
+}
+
+void StreamMgr::setMSConn(handy::TcpConnPtr conn)
+{
+    msConn_ = conn;
 }
 
 void StreamMgr::updateStorePlan(StorePlan* msg)
@@ -184,20 +244,8 @@ void StreamMgr::checkStorePlan()
                 {
                     delPlans_.erase(it);
                 }
-                //createSes and startSes;
-                uint64_t sesId = sesServicePtr_->newStoreSes(port_);
-                port_ = port_ + portInterval_;
-                if(sesId != 0)
-                {
-                    storeSess_[plan.second->streamId] = sesId;
-                    LOG(INFO) << "stream " << plan.second->streamId << " add StoreSession " << sesId;
-                }
-                else
-                {
-                    LOG(INFO) << "stream " << plan.second->streamId << " add StoreSession fail";
-                }
-
-                //TODO send Invite to MS
+                //createSes and invite
+                createStream(plan.second->streamId);
             }
         }
         else //if plan is unset now
@@ -205,6 +253,7 @@ void StreamMgr::checkStorePlan()
             if(existStoreSes(plan.second->streamId))
             {
                 //stopSes
+                stopStream(plan.second->streamId);
             }
             else
             {
@@ -215,6 +264,8 @@ void StreamMgr::checkStorePlan()
     for(auto& delPlan : delPlans_)
     {
         //stopSes
+        stopStream(delPlan.second->streamId);
     }
 }
+
 

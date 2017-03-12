@@ -5,10 +5,11 @@
 #include <string.h>
 
 #define BUFSIZE 10*1024*1024
+#define LOWATER 1470
 
 struct StreamBuf
 {
-    StreamBuf() : b_(2), e_(0), cap_(BUFSIZE)
+    StreamBuf() : b_(2), e_(BUFSIZE)
     {
         buf_ = new char[BUFSIZE];
         next_ = new char[BUFSIZE];
@@ -18,7 +19,7 @@ struct StreamBuf
         delete[] buf_;
         delete[] next_;
     }
-    size_t size() const{return e_ - b_;}
+    size_t cap() const{return e_ - b_;}
     char* data() const{return buf_;}
     char* begin() const{return buf_ + b_;}
     char* next() const{return next_;}
@@ -32,6 +33,21 @@ struct StreamBuf
         appendValue(buf_ + b_ - 2, (uint16_t)len);
         b_ = b_ + len + 2;
         return *this;
+    }
+    bool isFull()
+    {
+        if (cap() < LOWATER)
+            return true;
+        else
+            return false;
+    }
+
+    void resetBuf()
+    {
+        char* tmp = buf_;
+        buf_ = next_;
+        next_ = tmp;
+        b_ = 0;
     }
 private:
     char* buf_;

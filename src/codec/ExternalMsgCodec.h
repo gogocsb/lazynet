@@ -44,6 +44,7 @@ typedef std::function<void(TcpConnPtr con, BaseHead info, Message* msg)> ProtoCa
 struct ExternalMsgCodec{
     static void encode(Message* msg, Buffer& buf);
     static void encode(Message* msg, uint32_t error, uint32_t para1, uint32_t para2, Buffer& buf);
+    static void encode(std::string msg, uint32_t error, uint32_t para1, uint32_t para2, Buffer& buf);
     static Message* decode(Buffer& buf, BaseHead& info);
     static bool msgComplete(Buffer& buf);
     static void onCodec(uint32_t cmd, std::string type);
