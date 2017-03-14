@@ -16,7 +16,7 @@ public:
     //TODO add KeepAlive
     DSServer(handy::Ip4Addr, handy::Ip4Addr);
     void initAdmin(handy::EventBase*);
-    void initStore(handy::MultiBase*);
+    void initStore(handy::EventBase*);
     void initLoad();
     void registerToMS();
     void keepAlive();
@@ -24,7 +24,7 @@ private:
     handy::Ip4Addr localAddr_;
     handy::Ip4Addr remoteAddr_;
     handy::EventBase* adminLoop_;
-    handy::MultiBase* storeLoop_;
+    handy::EventBase* storeLoop_;
     handy::ThreadPool storeThread_;
     handy::TcpConnPtr msAgent_;
     ExternalMsgDispatcher dispatcher_;

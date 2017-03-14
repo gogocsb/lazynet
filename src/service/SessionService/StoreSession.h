@@ -31,7 +31,8 @@ using namespace std;
 class StoreSession
 {
 public:
-    StoreSession(handy::EventBase*, handy::MultiBase*, handy::Ip4Addr);
+    StoreSession(handy::EventBase*, handy::EventBase*, handy::Ip4Addr);
+    int prePareStore();
     void startStore();
     void stopStore();
     void addOutStream(handy::Ip4Addr);
@@ -49,7 +50,7 @@ private:
     handy::UdpConnPtr inStream_;
     vector<handy::Ip4Addr> outStreamVec_;
     handy::EventBase* adminLoop_;
-    handy::MultiBase* storeLoop_;
+    handy::EventBase* storeLoop_;
 };
 typedef shared_ptr<StoreSession> StoreSesPtr;
 

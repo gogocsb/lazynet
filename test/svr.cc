@@ -1,3 +1,4 @@
+#include <thread>
 #include <glog/logging.h>
 
 #include <handy/handy.h>
@@ -12,13 +13,16 @@ int main(int argc, char** argv)
     FLAGS_colorlogtostderr=true;
     Logger::getLogger().setLogLevel(Logger::LWARN);
     handy::EventBase adminLoop;
-    handy::MultiBase storeLoop(1);
+    handy::EventBase storeLoop;
     handy::Ip4Addr loacl("127.0.0.1", 2017);
     handy::Ip4Addr remote("127.0.0.1", 6666);
     DSServer DS(loacl, remote);
     DS.initAdmin(&adminLoop);
     DS.initStore(&storeLoop);
     DS.registerToMS();
-    storeLoop.loop();
+    LOG(INFO) << "t prepare";
+    thread t([&storeLoop]{ storeLoop.loop(); LOG(INFO)<<"aaa"; });
+    //t.join();
+    LOG(INFO) << "t start";
     adminLoop.loop();
 }

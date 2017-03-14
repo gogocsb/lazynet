@@ -8,7 +8,7 @@
 using namespace std;
 
 SessionService::SessionService(handy::EventBase* admin,
-        handy::MultiBase* store) :
+        handy::EventBase* store) :
     storeSesCount_(0),
     loadSesCount_(0),
     liveSesCount_(0),
@@ -27,10 +27,10 @@ uint64_t SessionService::newStoreSes(uint16_t port)
         ++id_;
         handy::Ip4Addr addr("127.0.0.1", port);
         StoreSesPtr storeSes(new StoreSession(adminLoop_, storeLoop_, addr));
-        int ret = storeSes->bindAddr();
+        int ret = storeSes->prePareStore();
         if(storeSes != nullptr && ret == 0)
         {
-            LOG(INFO) << "session " << id_ << " is created";
+            LOG(WARNING) << "session " << id_ << " is created";
             storeSess_[id_] = storeSes;
             return id_;
         }

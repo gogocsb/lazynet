@@ -34,7 +34,7 @@ class SessionService
 {
 public:
     SessionService(handy::EventBase*,
-            handy::MultiBase*);
+            handy::EventBase*);
     //StoreSession interface
     uint64_t newStoreSes(uint16_t);
     void startStoreSes(uint64_t);
@@ -57,7 +57,7 @@ private:
     Id2StoreMap storeSess_;
     //map<uint64_t, > loadMap_;
     handy::EventBase* adminLoop_;
-    handy::MultiBase* storeLoop_;
+    handy::EventBase* storeLoop_;
 };
 
 #endif

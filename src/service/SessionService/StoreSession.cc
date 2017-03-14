@@ -1,13 +1,16 @@
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/syscall.h>
 #include <handy/handy.h>
 
 #include <glog/logging.h>
 
 #include "StoreSession.h"
 
+#define gettidv1() syscall(__NR_gettid)
+
 StoreSession::StoreSession(handy::EventBase* adminloop,
-        handy::MultiBase* storeloop,
+        handy::EventBase* storeloop,
         handy::Ip4Addr addr)
     : fd_(0), buf_(), addr_(addr), adminLoop_(adminloop), storeLoop_(storeloop)
 {
@@ -30,8 +33,13 @@ int StoreSession::bindAddr()
         return errno;
     }
     handy::net::setNonBlock(fd_);
-    LOG(INFO) << "udp fd " << fd_ << " bind to " << addr_.toString().c_str();
+    LOG(WARNING) << "udp fd " << fd_ << " bind to " << addr_.toString().c_str();
     return 0;
+}
+
+int StoreSession::prePareStore()
+{
+    storeLoop_->safeCall([this]{ return bindAddr();});
 }
 
 //TODO ReadCallBack
@@ -39,7 +47,7 @@ int StoreSession::bindAddr()
 //when buf reach 10M, flush buffer, exchange buf and buf->next
 void StoreSession::attatchToLoop()
 {
-    channel_ = new handy::Channel(storeLoop_->allocBase(), fd_, handy::kReadEvent);
+    channel_ = new handy::Channel(storeLoop_, fd_, handy::kReadEvent);
     channel_->onRead([this]{
             LOG(INFO) << "onRead";
 
@@ -71,6 +79,7 @@ void StoreSession::attatchToLoop()
                 buf_.resetBuf();
             }
             });
+    LOG(WARNING) << "attatch successful";
     return;
 }
 
@@ -93,24 +102,25 @@ void StoreSession::closeUDP()
 {
     if(!channel_)
         return;
+    channel_->enableReadWrite(false, false);
     auto p = channel_;
-    channel_=NULL;
-    storeLoop_->allocBase()->safeCall([p](){ delete p; });
+    channel_= NULL;
+    delete p;
 }
 
 void StoreSession::startStore()
 {
-    this->attatchToLoop();
+    storeLoop_->safeCall([this]{ attatchToLoop();});
 }
 
 void StoreSession::stopStore()
 {
-    this->closeUDP();
+    storeLoop_->safeCall( [this]{ closeUDP();});
 }
 
 void StoreSession::addOutStream(handy::Ip4Addr outStream)
 {
-    storeLoop_->allocBase()->safeCall(
+    storeLoop_->safeCall(
             [=]{
                 outStreamVec_.push_back(outStream);
             });
@@ -118,7 +128,7 @@ void StoreSession::addOutStream(handy::Ip4Addr outStream)
 
 void StoreSession::removeOutStream(handy::Ip4Addr outStream)
 {
-    storeLoop_->allocBase()->safeCall(
+    storeLoop_->safeCall(
             [=]{
                 auto it = find(outStreamVec_.begin(), outStreamVec_.end(), outStream);
                 if(it == outStreamVec_.end())
