@@ -27,7 +27,6 @@ void ExternalMsgDispatcher::handle(TcpConnPtr con, BaseHead info, Message* msg)
     }
 }
 
-
 Message* ExternalMsgCodec::decode(Buffer& buf, BaseHead& info)
 {
     if(buf.size() < 20)

@@ -1,5 +1,6 @@
 set(service_SRCS
     DSServer.cc
+    MSServer.cc
     ./SessionService/SessionService.cc
     ./SessionService/StoreSession.cc
     ./SessionService/LoadSession.cc

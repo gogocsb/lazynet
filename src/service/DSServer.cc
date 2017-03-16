@@ -79,8 +79,6 @@ void DSServer::registerToMS()
                     con->sendOutput();
                     LOG(INFO) << "send Register";
                     streamMgr_->setMSConn(con);
-                    ExternalMsgCodec::encode(&msg, 0, 0, 0, con->getOutput());
-                    con->sendOutput();
                 }
             });
     msAgent_->onRead(

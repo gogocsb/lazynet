@@ -52,7 +52,7 @@ message ("  BOOST_ROOT: ${Boost_INCLUDE_DIRS}")
 # ---- Protobuf 
 if(USE_PROTO)
     find_package(Protobuf REQUIRED)
-    add_subdirectory(protocol)
+    add_subdirectory(protobuf)
     message ("  ADD Protobuf")
 endif()
 

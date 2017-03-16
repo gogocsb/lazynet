@@ -1,3 +1,4 @@
+include_directories(../src/common)
 include_directories(../src)
 
 set(md5test_SRCS
@@ -27,3 +28,17 @@ target_link_libraries(DS
                     service
                     codec
                     pthread)
+#set(MS_SRCS
+#    ms.cc
+#    )
+
+
+#add_executable(MS ${MS_SRCS})
+#target_link_libraries(MS
+#                    handy
+#                    proto
+#                    manager
+#                    glog
+#                    service
+#                    codec
+#                    pthread)

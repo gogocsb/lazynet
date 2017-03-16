@@ -1,10 +1,11 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/protocol)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 
 
 # --- SRC handy
-set(handy_LINKER_LIBS "")
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/handy handy_SRCS)
+set(handy_LINKER_LIBS glog)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/common/handy handy_SRCS)
 add_definitions(-DOS_LINUX)
 add_library(handy STATIC ${handy_SRCS})
 target_link_libraries(handy ${handy_LINKER_LIBS})
